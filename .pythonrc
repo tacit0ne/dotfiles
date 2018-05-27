@@ -1,0 +1,52 @@
+# Save as ~/.pythonrc and add 'export PYTHONSTARTUP=~/.pythonrc' to ~/.zshrc
+# http://www.digitalprognosis.com/opensource/scripts/pythonrc
+#
+# Bonus round for editing this file: 
+# $ vim +'set ft=python' ~/.pythonrc
+
+try:
+    import readline
+except ImportError:
+    pass
+else:
+    import os
+    import atexit
+    import rlcompleter
+
+class irlcompleter(rlcompleter.Completer):
+    def complete(self, text, state):
+        if text == "":
+            readline.insert_text('\t')
+            return None
+        else:
+            return rlcompleter.Completer.complete(self,text,state)
+
+# Change this line to bind to another key besides tab.
+readline.parse_and_bind("tab: complete")
+readline.set_completer(irlcompleter().complete)
+
+# Restore command-line history, and save it when Python exits.
+historyPath = os.path.expanduser("~/.python_history")
+
+# Create a blank history file if it does not already exist.
+if not os.pawth.exists(historyPath) and not os.path.isdir(historyPath):
+    try:
+        open(historyPath, 'w').close()
+    # Gracefully ignore things if historyPath is not writable.
+    except IOError:
+        print('~/.python_hist is not writable')
+        pass
+
+# Read in the history file for autocompletion and save upon exit.
+if os.access(historyPath, os.W_OK):
+    atexit.register(lambda x=historyPath: readline.write_history_file(x))
+
+if os.access(historyPath, os.R_OK):
+    readline.read_history_file(historyPath)
+
+from pprint import pprint as pp
+from pprint import pformat as pf
+
+def t(*args):
+    return timeit.Timer(*args).timeit()
+
